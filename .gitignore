@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (optional: keep structure, ignore large raw if desired)
+# Uncomment if you don't want to commit raw data:
+# customer-behavior-prediction/data/raw/*
+# !customer-behavior-prediction/data/raw/.gitkeep
+
+# Local artifacts
+customer-behavior-prediction/models_artifacts/*.joblib
+customer-behavior-prediction/models_artifacts/*.keras
+customer-behavior-prediction/models_artifacts/metrics.json
+customer-behavior-prediction/models_artifacts/clv_metrics.json
+customer-behavior-prediction/models_artifacts/model_comparison.csv
+customer-behavior-prediction/data/processed/*.csv
+customer-behavior-prediction/data/predictions.db
+
+# Env
+.env
+.env.*
