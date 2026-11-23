@@ -7,6 +7,8 @@ import pandas as pd
 from fastapi import APIRouter, File, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse
 
+from src.utils.db import get_conn, init_predictions_table
+
 router = APIRouter(prefix="/batch", tags=["batch"])
 
 
@@ -43,6 +45,38 @@ def _run_inference_if_available(df: pd.DataFrame):
     return out, None
 
 
+def _log_predictions_to_db(df_out: pd.DataFrame) -> None:
+    try:
+        db_path = Path(__file__).resolve().parents[2] / "data" / "predictions.db"
+        init_predictions_table(db_path)
+        conn = get_conn(db_path)
+        try:
+            for _, r in df_out.iterrows():
+                cid = None
+                if "Customer ID" in df_out.columns and pd.notna(r.get("Customer ID")):
+                    try:
+                        cid = int(r.get("Customer ID"))
+                    except Exception:
+                        cid = None
+                conn.execute(
+                    "INSERT INTO predictions (customer_id, recency_days, frequency, monetary, churn_probability, churn_label) VALUES (?, ?, ?, ?, ?, ?)",
+                    (
+                        cid,
+                        float(r.get("RecencyDays", 0)),
+                        float(r.get("Frequency", 0)),
+                        float(r.get("Monetary", 0)),
+                        float(r.get("churn_probability", 0.5)),
+                        int(r.get("churn_label", 0)),
+                    ),
+                )
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception:
+        # best effort logging; do not fail the request
+        pass
+
+
 @router.post("/score")
 async def batch_score(file: UploadFile = File(...)):
     if not file.filename or not file.filename.lower().endswith(".csv"):
@@ -57,7 +91,8 @@ async def batch_score(file: UploadFile = File(...)):
     out, err = _run_inference_if_available(df.copy())
     if err:
         return {"rows": len(df), "predictions": [], "note": err}
-    return {"rows": len(out), "predictions": out.head(50).to_dict(orient="records"), "note": "model predictions (first 50 shown)"}
+    _log_predictions_to_db(out)
+    return {"rows": len(out), "predictions": out.head(50).to_dict(orient="records"), "note": "model predictions (first 50 shown; logged to DB)"}
 
 
 @router.post("/score.csv")
@@ -74,6 +109,7 @@ async def batch_score_csv(file: UploadFile = File(...)):
     out, err = _run_inference_if_available(df.copy())
     if err:
         raise HTTPException(status_code=400, detail=err)
+    _log_predictions_to_db(out)
 
     buf = io.StringIO()
     out.to_csv(buf, index=False)
