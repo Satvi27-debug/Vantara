@@ -1,34 +1,33 @@
-# Vantara Retail Solutions — Customer Behavior Prediction Platform
+# Customer Behavior Prediction Platform (Vantara Retail Solutions)
 
-This repository contains a PRD-driven prototype for **Customer Behavior Prediction** (churn risk, RFM/engagement features, segmentation, baseline models, FastAPI API, and Streamlit dashboard) built as an internal analytics/training project.
+PRD-driven prototype: churn risk (baseline), RFM + engagement features, FastAPI API, Streamlit dashboard.
 
-## Contents
-- `customer-behavior-prediction/` — main project (code, scripts, API, dashboard, docs, scaffolds)
-- `9d043eea983979be328ec962c826cea6.docx` — Product Requirements Document (PRD)
+## Prerequisites
+- Python 3.10+
+- Install deps: `pip install -r requirements.txt`
+- Dataset: Online Retail II (UCI). Put the Excel file at:
+  - `data/raw/online_retail_II.xlsx` (sheets: `Year 2009-2010`, `Year 2010-2011`)
 
-## Quick start
-See the detailed guide in:
-- `customer-behavior-prediction/README.md`
+## End-to-end (local)
+From the `customer-behavior-prediction/` directory:
 
-### Minimal steps (after placing dataset)
+### Option A: one command (recommended after data is in place)
 ```bash
-cd customer-behavior-prediction
-pip install -r requirements.txt
 python scripts/run_full_pipeline.py
+```
+Then optionally:
+```bash
 python scripts/build_segments_example.py
 python scripts/build_segments_gmm_example.py
-uvicorn api.main:app --reload
-# in another terminal
-streamlit run frontend/dashboard.py
+python scripts/train_rf_churn.py
+python scripts/train_xgb_churn.py
+python scripts/train_lgbm_churn.py
+python scripts/train_clv_regression.py
+python scripts/generate_shap_summary.py
+python scripts/log_predictions_example.py
 ```
 
-## Dataset
-Online Retail II (UCI). Place the Excel file at:
-`customer-behavior-prediction/data/raw/online_retail_II.xlsx` (sheets: `Year 2009-2010`, `Year 2010-2011`).
+See `docs/MODEL_NOTES.md` for details and remaining PRD items.
 
 ## Notes
-- This is a baseline/prototype implementation aligned to the PRD. Some advanced items (full DL tuning, full XAI UI integration, production DB wiring, final diagrams/report PDFs beyond placeholders) are documented as next steps in `customer-behavior-prediction/docs/MODEL_NOTES.md`.
-
-## Author / Git identity (for this repo)
-- Name: Satvi27-debug
-- Email: satvendragirinihal@gmail.com
+- Repo includes runnable baselines, segmentation, extra model training scripts, a basic SHAP plot script, and a SQLite logging example. Remaining PRD items (full DL, full XAI in UI, full DB-backed API flows, full docs/diagrams/report, stricter tests/coverage) are listed in `docs/MODEL_NOTES.md`.
