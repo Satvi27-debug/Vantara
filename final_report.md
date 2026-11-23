@@ -21,22 +21,22 @@ This project delivers a PRD-aligned prototype for customer churn risk, RFM/engag
 - KMeans (`build_segments_example.py`) and GMM (`build_segments_gmm_example.py`) producing customer segment assignments and summaries.
 
 ## 6. Explainability
-- SHAP summary script (`generate_shap_summary.py`) can produce `docs/shap_summary.png` if `shap` installed.
-- API endpoint `POST /explain/shap` (baseline model) returns top SHAP contributions for provided feature values.
-- Dashboard includes a local SHAP form and displays the summary image when available. LIME/PDP and a formal plain-language template remain next steps.
+- Scripts: `generate_shap_summary.py`, `generate_lime_example.py`, `generate_pdp.py` (best effort).
+- API: `POST /explain/shap` returns top contributions for baseline model inputs.
+- Dashboard: summary image display + local SHAP form. LIME/PDP outputs can be generated to `docs/` and referenced; plain-language template is a next step.
 
 ## 7. Deployment
-- FastAPI app with health, model metadata, predict, batch scoring (CSV), recent predictions (`GET /predictions/recent`), and explain endpoint. Batch scoring logs to local SQLite (`data/predictions.db`).
+- FastAPI: health, model metadata, predict, batch scoring (logs to SQLite), `GET /predictions/recent`, `GET /metrics/comparison`, `GET /metrics/clv`, and explain endpoint. Run via `uvicorn api.main:app`.
 - Streamlit dashboard: overview, segmentation, leaderboard, model comparison, recent predictions, trends, explainability, batch scoring helper.
-- Dockerfiles/compose provided for local orchestration (review/harden as needed).
+- Dockerfiles/compose provided for local orchestration.
 
 ## 8. Results vs success metrics
-Populate after running full experiments on the real dataset and recording metrics in `models_artifacts/` and comparison CSV. Compare against PRD targets (ROC-AUC, recall, CLV R², latency notes).
+Run the provided scripts on the real dataset, then record measured metrics in artifacts and compare to PRD targets (ROC-AUC ≥0.80, CLV R² ≥0.60, churn recall ≥0.70, latency/dashboard notes).
 
 ## 9. Risks and limitations
 - Small customer base can limit DL performance; tree baselines preferred initially.
 - Class imbalance requires careful metric reporting.
-- Some PRD features remain scaffolded/documented for follow-up.
+- Some PRD items require executing training on real data and manual artifact finalization (diagrams/PDF).
 
 ## 10. Next steps
-- Complete DL training/tuning runs, expand XAI (LIME/PDP, stakeholder template), harden DB option, export final diagrams, and finalize measured results in this report.
+- Execute full training runs, generate final XAI artifacts, export final diagrams, produce final PDF, and tighten tests/coverage.
